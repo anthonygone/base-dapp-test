@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First DApp</title>
+    <script src="https://cdn.ethers.io/lib/ethers-6.13.4.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --accent: #00ff9d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #16213e 100%);
+            color: #e0e0ff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, #00ff9d, #00b8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #8888aa;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.1);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+        }
+        
+        .connect-btn {
+            background: linear-gradient(90deg, #00ff9d, #00cc7a);
+            color: #000;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 255, 157, 0.4);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .info-item {
+            background: rgba(255,255,255,0.05);
+            padding: 16px;
+            border-radius: 12px;
+        }
+        
+        .label {
+            font-size: 0.85rem;
+            color: #8888aa;
+            margin-bottom: 4px;
+        }
+        
+        .value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            word-break: break-all;
+        }
+        
+        .status {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        
+        .connected {
+            background: rgba(0, 255, 157, 0.2);
+            color: #00ff9d;
+        }
+        
+        button {
+            background: #16213e;
+            color: #00ff9d;
+            border: 1px solid #00ff9d;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            background: #00ff9d;
+            color: #000;
+        }
+        
+        .tx-hash {
+            font-family: monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 My DApp</h1>
+            <p class="subtitle">A simple Ethereum DApp in one HTML file</p>
+        </header>
+
+        <div class="card">
+            <h2>Wallet Connection</h2>
+            <button id="connectBtn" class="connect-btn">Connect Wallet</button>
+            
+            <div id="walletInfo" style="display: none; margin-top: 24px;">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="label">Account</div>
+                        <div id="account" class="value"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">Balance</div>
+                        <div id="balance" class="value"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">Network</div>
+                        <div id="network" class="value"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">Status</div>
+                        <span id="status" class="status connected">Connected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Send Test Transaction</h2>
+            <p style="margin-bottom: 16px; color: #aaa;">Send 0.001 ETH to yourself (testnet recommended)</p>
+            
+            <input type="text" id="recipient" placeholder="Recipient Address (default: your own)" 
+                   style="width: 100%; padding: 12px; border-radius: 8px; background: #16213e; border: 1px solid #334; color: white; margin-bottom: 12px;">
+            
+            <button id="sendBtn" style="width: 100%; padding: 14px;">Send 0.001 ETH</button>
+            
+            <div id="txResult" style="margin-top: 16px; display: none;">
+                <p>Transaction Hash:</p>
+                <a id="txLink" target="_blank" class="tx-hash"></a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>How to use</h2>
+            <ol style="line-height: 1.8; padding-left: 20px;">
+                <li>Use MetaMask (or any injected wallet)</li>
+                <li>Switch to Sepolia or another testnet</li>
+                <li>Click "Connect Wallet"</li>
+                <li>Try sending a small test transaction</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let provider;
+        let signer;
+        let currentAccount = null;
+
+        const connectBtn = document.getElementById('connectBtn');
+        const walletInfo = document.getElementById('walletInfo');
+        const accountEl = document.getElementById('account');
+        const balanceEl = document.getElementById('balance');
+        const networkEl = document.getElementById('network');
+        const sendBtn = document.getElementById('sendBtn');
+        const txResult = document.getElementById('txResult');
+        const txLink = document.getElementById('txLink');
+
+        // Connect wallet
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert("Please install MetaMask or another Web3 wallet!");
+                return;
+            }
+
+            try {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
+                signer = await provider.getSigner();
+                currentAccount = accounts[0];
+
+                await updateUI();
+                wallet
